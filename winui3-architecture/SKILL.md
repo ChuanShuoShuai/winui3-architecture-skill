@@ -134,6 +134,8 @@ has cost a production release.
 | Never assign one `Geometry` instance to two `Path.Data` properties | `ArgumentException 0x80070057` thrown inside `set_Data`, not caught by surrounding try/catch |
 | `ContentDialog` cannot nest `ShowAsync` | Chain dialogs by hiding the current one and reopening after `await` returns |
 | `Microsoft.UI.Xaml.Window` has no `Visibility` | Track "hidden to tray" with your own flag |
+| `PaneDisplayMode="Auto"` below its compact threshold floats the pane over the page | Hamburger button lands on top of every page title |
+| The pane toggle takes keyboard focus on launch | A heavy focus rectangle is painted over the hamburger |
 | Do not set an opaque background on `Window` / `NavigationView` / page root when using a backdrop | The backdrop is drawn but covered; the window looks flat |
 | Never call `PerformanceCounter` per instance in a polling loop | Megabyte-per-tick allocations; use PDH array queries |
 

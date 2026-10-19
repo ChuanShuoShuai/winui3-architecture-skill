@@ -128,6 +128,8 @@ Mica    → 亚克力   当 MicaController.IsSupported() 为 false
 | 同一个 `Geometry` 实例不能赋给两个 `Path.Data` | `ArgumentException 0x80070057`，在 `set_Data` 内部抛出，外层 try/catch 接不住 |
 | `ContentDialog` 不能嵌套 `ShowAsync` | 用「隐藏当前框 → await 返回后开下一个」的方式串起来 |
 | `Microsoft.UI.Xaml.Window` 没有 `Visibility` 属性 | 自己维护「已隐藏到托盘」的标志位 |
+| `PaneDisplayMode="Auto"` 在窄于紧凑阈值时导航栏浮在页面上 | 汉堡按钮压住每个页面的标题 |
+| 导航栏切换按钮启动时抢走键盘焦点 | 汉堡按钮上出现一圈粗黑焦点框 |
 | 用了背景材质时，不要给 `Window` / `NavigationView` / 页面根节点铺不透明底色 | 材质画了但被盖住，窗口看着是纯灰色 |
 | 轮询循环里不要逐实例调 `PerformanceCounter` | 每次刷新分配几兆内存；改用 PDH 数组查询 |
 

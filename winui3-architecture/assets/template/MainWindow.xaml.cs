@@ -26,6 +26,11 @@ public sealed partial class MainWindow : Window
         ApplyBackdrop(AppSettings.BackdropMode);
         RestoreLastPage();
 
+        // The pane toggle button takes keyboard focus on launch, which paints a
+        // heavy focus rectangle over the hamburger. Hand focus to the content
+        // area instead — FocusState.Pointer moves focus without the visual.
+        RootGrid.Loaded += (_, _) => RootGrid.Focus(FocusState.Pointer);
+
         App.LogStartup("MainWindow ctor done");
     }
 

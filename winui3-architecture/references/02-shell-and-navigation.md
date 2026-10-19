@@ -17,13 +17,11 @@ theme, backdrop, and settings state stay in one place.
     <!-- custom title bar content goes here -->
 
     <NavigationView x:Name="NavView" Grid.Row="1"
-                    PaneDisplayMode="Auto"
+                    PaneDisplayMode="Left"
                     IsSettingsVisible="False"
                     IsBackButtonVisible="Collapsed"
                     IsTitleBarAutoPaddingEnabled="False"
                     OpenPaneLength="200"
-                    CompactModeThresholdWidth="1000"
-                    ExpandedModeThresholdWidth="1200"
                     SelectionChanged="NavView_SelectionChanged">
         <NavigationView.MenuItems>
             <NavigationViewItem Icon="Home" Content="Monitor" Tag="monitor" />
@@ -51,8 +49,33 @@ theme, backdrop, and settings state stay in one place.
 | `IsBackButtonVisible` | `Collapsed` | Desktop apps navigate by selection, not by history; the back chrome is noise |
 | `IsTitleBarAutoPaddingEnabled` | `False` | Required when you draw a custom title bar — otherwise the pane starts 32 px down |
 | `OpenPaneLength` | `200` | The default 320 px eats a third of a 1000 px window |
-| `CompactModeThresholdWidth` | `1000` | Below this the pane collapses to icons only |
-| `ExpandedModeThresholdWidth` | `1200` | Above this it stays open; between the two it uses the last user choice |
+| `PaneDisplayMode` | `Left` | Docked beside the content at every width — see below |
+
+## Pane mode: why `Left`, not `Auto`
+
+`Auto` sounds adaptive but has a failure mode that looks like a layout bug:
+
+| Window width | Resulting mode | Behaviour |
+|---|---|---|
+| ≥ `ExpandedModeThresholdWidth` | Left | Pane docked, content beside it |
+| between the two thresholds | LeftCompact | Icon rail, content beside it |
+| < `CompactModeThresholdWidth` | **LeftMinimal** | **Pane floats on top of the content** |
+
+In LeftMinimal the content extends under the pane. The hamburger button sits at the
+page's top-left corner, so the first heading of every page is overlapped by it — and
+expanding the pane covers the page with a translucent panel. Reproduced at 800 DIP with
+`CompactModeThresholdWidth="1000"`: the page title and the pane draw on top of each other.
+
+Three ways out:
+
+1. **`PaneDisplayMode="Left"`** (recommended for desktop). Pane always docked; content is
+   never covered. Simplest and matches Settings / Notepad / Calculator.
+2. Keep `Auto` and give every page a top-left inset of ~48 px so the hamburger has room.
+3. Keep `Auto` and set `CompactModeThresholdWidth` below your minimum window width, so
+   LeftMinimal is never reached.
+
+Option 1 is the default in `assets/template/MainWindow.xaml`. If you switch to `Auto`,
+verify at the narrowest window size you support.
 
 ## Navigation handler
 

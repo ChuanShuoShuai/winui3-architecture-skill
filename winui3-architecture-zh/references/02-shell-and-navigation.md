@@ -15,13 +15,11 @@
     <Grid x:Name="TitleBarArea" Grid.Row="0" Height="32" Background="Transparent" />
 
     <NavigationView x:Name="NavView" Grid.Row="1"
-                    PaneDisplayMode="Auto"
+                    PaneDisplayMode="Left"
                     IsSettingsVisible="False"
                     IsBackButtonVisible="Collapsed"
                     IsTitleBarAutoPaddingEnabled="False"
                     OpenPaneLength="200"
-                    CompactModeThresholdWidth="1000"
-                    ExpandedModeThresholdWidth="1200"
                     SelectionChanged="NavView_SelectionChanged">
         <NavigationView.MenuItems>
             <NavigationViewItem Icon="Home" Content="监控" Tag="monitor" />
@@ -49,8 +47,32 @@
 | `IsBackButtonVisible` | `Collapsed` | 桌面应用靠选择导航，不靠历史栈，返回按钮是噪音 |
 | `IsTitleBarAutoPaddingEnabled` | `False` | 自绘标题栏时必须关掉，否则导航栏整体下移 32 px |
 | `OpenPaneLength` | `200` | 默认 320 px 会在 1000 px 宽的窗口里吃掉三分之一 |
-| `CompactModeThresholdWidth` | `1000` | 低于此宽度收成图标模式 |
-| `ExpandedModeThresholdWidth` | `1200` | 高于此宽度保持展开；两者之间沿用用户上次的选择 |
+| `PaneDisplayMode` | `Left` | 任何宽度下导航栏都并排在内容左侧，见下 |
+
+## 为什么用 `Left` 而不是 `Auto`
+
+`Auto` 听起来是"自适应"，但有一个失败模式，看起来像布局 bug：
+
+| 窗口宽度 | 实际模式 | 行为 |
+|---|---|---|
+| ≥ `ExpandedModeThresholdWidth` | Left | 导航栏并排，内容在右侧 |
+| 两个阈值之间 | LeftCompact | 图标栏，内容在右侧 |
+| < `CompactModeThresholdWidth` | **LeftMinimal** | **导航栏浮在内容之上** |
+
+LeftMinimal 模式下，内容一直延伸到导航栏底下。汉堡按钮正好压在页面左上角，
+于是**每个页面的第一个标题都会被压住**；展开导航栏时，半透明面板整块盖在页面上。
+实测：窗口 800 DIP + `CompactModeThresholdWidth="1000"`，页面标题和导航栏直接叠在一起。
+
+三条出路：
+
+1. **`PaneDisplayMode="Left"`（桌面应用推荐）** —— 导航栏常驻并排，内容永远不被覆盖。
+   最简单，和「设置」「记事本」「计算器」的做法一致。
+2. 保留 `Auto`，但每个页面自己补约 48 px 的左上留白，给汉堡按钮腾位置。
+3. 保留 `Auto`，把 `CompactModeThresholdWidth` 设到比你的最小窗口宽度还小，
+   这样永远不会进入 LeftMinimal。
+
+模板 `assets/template/MainWindow.xaml` 默认用方案 1。如果你改成 `Auto`，
+务必在你支持的最窄窗口尺寸下验证一遍。
 
 ## 导航处理
 
