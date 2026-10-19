@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="MyApp.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MyApp"
+    Title="MyApp">
+
+    <!-- The backdrop is composited BEHIND the content. Never give RootGrid,
+         NavigationView or the page root an opaque background while a backdrop
+         is active, or it will be hidden. When the user selects "None", paint
+         RootGrid yourself (see ApplyBackdrop in the code-behind). -->
+    <Window.SystemBackdrop>
+        <local:MicaSystemBackdrop x:Name="AppBackdrop" />
+    </Window.SystemBackdrop>
+
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Custom title bar strip. Drag anywhere on this element. -->
+        <Grid x:Name="TitleBarArea" Grid.Row="0" Height="32" Background="Transparent">
+            <TextBlock Text="MyApp"
+                       Margin="16,0,0,0"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </Grid>
+
+        <NavigationView x:Name="NavView"
+                        Grid.Row="1"
+                        PaneDisplayMode="Auto"
+                        IsBackButtonVisible="Collapsed"
+                        IsSettingsVisible="False"
+                        IsTitleBarAutoPaddingEnabled="False"
+                        OpenPaneLength="200"
+                        CompactModeThresholdWidth="1000"
+                        ExpandedModeThresholdWidth="1200"
+                        SelectionChanged="NavView_SelectionChanged">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Home" Content="Home" Tag="home" />
+                <NavigationViewItem Content="Second page" Tag="second">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8A0;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <!-- Settings lives in the footer so its position and icon are under
+                 your control (IsSettingsVisible="False" above). -->
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Icon="Setting" Content="Settings" Tag="settings" />
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
+    </Grid>
+</Window>
