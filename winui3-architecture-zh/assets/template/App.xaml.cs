@@ -61,7 +61,6 @@ public partial class App : Application
         try
         {
             MainWindow = new MainWindow();
-            LogStartup("MainWindow ctor done");
             MainWindow.Activate();
             LogStartup("MainWindow activated");
         }
