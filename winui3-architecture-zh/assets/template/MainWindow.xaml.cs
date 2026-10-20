@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
 
         ApplyTheme();
         ApplyBackdrop(AppSettings.BackdropMode);
+        UpdateContentInset(NavView.DisplayMode);
         RestoreLastPage();
 
         // The pane toggle button takes keyboard focus on launch, which paints a
@@ -32,6 +33,23 @@ public sealed partial class MainWindow : Window
         RootGrid.Loaded += (_, _) => RootGrid.Focus(FocusState.Pointer);
 
         App.LogStartup("MainWindow ctor done");
+    }
+
+    /// <summary>
+    /// In LeftMinimal the pane floats over the content and the hamburger button
+    /// sits at the content's top-left corner. Give the frame a top inset in that
+    /// mode only, so page titles clear the button; docked modes need no inset.
+    /// </summary>
+    private void NavView_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
+    {
+        UpdateContentInset(args.DisplayMode);
+    }
+
+    private void UpdateContentInset(NavigationViewDisplayMode mode)
+    {
+        ContentFrame.Margin = mode == NavigationViewDisplayMode.Minimal
+            ? new Thickness(0, 48, 0, 0)
+            : new Thickness(0);
     }
 
     // ---- theme ------------------------------------------------------------

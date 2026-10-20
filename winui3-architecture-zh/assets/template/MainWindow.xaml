@@ -29,17 +29,23 @@
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </Grid>
 
-        <!-- PaneDisplayMode="Left"：任何窗口宽度下导航栏都并排在内容左侧，
-             内容永远不会被遮住。用 "Auto" 时，窗口窄于 CompactModeThresholdWidth
-             会退化为 LeftMinimal —— 导航栏浮在页面之上，汉堡按钮直接压住页面标题，
-             除非每个页面自己补左上留白。想要那种紧凑行为才用 "Auto"，并且页面要适配。 -->
+        <!-- PaneDisplayMode="Auto" 提供桌面应用的三档标准模式：
+             ≥ ExpandedModeThresholdWidth → Left（导航栏并排，OpenPaneLength 宽）
+             两阈值之间                    → LeftCompact（48 px 图标栏，并排）
+             < CompactModeThresholdWidth   → LeftMinimal（导航栏浮在内容上）
+             LeftMinimal 下汉堡按钮会压住页面标题，所以代码在 Minimal 档给
+             ContentFrame 加 48 px 顶部留白（见 NavView_DisplayModeChanged）。
+             如果永远不想要悬浮导航栏，直接把 PaneDisplayMode 钉死为 "Left"。 -->
         <NavigationView x:Name="NavView"
                         Grid.Row="1"
-                        PaneDisplayMode="Left"
+                        PaneDisplayMode="Auto"
                         IsBackButtonVisible="Collapsed"
                         IsSettingsVisible="False"
                         IsTitleBarAutoPaddingEnabled="False"
                         OpenPaneLength="200"
+                        CompactModeThresholdWidth="560"
+                        ExpandedModeThresholdWidth="1008"
+                        DisplayModeChanged="NavView_DisplayModeChanged"
                         SelectionChanged="NavView_SelectionChanged">
 
             <NavigationView.MenuItems>

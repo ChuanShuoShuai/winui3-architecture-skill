@@ -29,20 +29,24 @@
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </Grid>
 
-        <!-- PaneDisplayMode="Left": the pane stays docked beside the content at
-             every window width, so content is never covered. With "Auto" the view
-             falls back to LeftMinimal below CompactModeThresholdWidth, where the
-             pane floats ON TOP of the page — the hamburger button then overlaps
-             your page title unless every page adds its own top-left inset.
-             Choose "Auto" only if you want that compact behaviour and adapt the
-             pages for it. -->
+        <!-- PaneDisplayMode="Auto" gives the three standard desktop modes:
+             ≥ ExpandedModeThresholdWidth  → Left (pane docked, OpenPaneLength wide)
+             between the thresholds        → LeftCompact (48 px icon rail, docked)
+             < CompactModeThresholdWidth   → LeftMinimal (pane floats over content)
+             LeftMinimal overlaps page titles with the hamburger button, so the
+             code-behind gives ContentFrame a 48 px top inset while in Minimal
+             (see NavView_DisplayModeChanged). If you never want the floating
+             pane, hard-pin PaneDisplayMode="Left" instead. -->
         <NavigationView x:Name="NavView"
                         Grid.Row="1"
-                        PaneDisplayMode="Left"
+                        PaneDisplayMode="Auto"
                         IsBackButtonVisible="Collapsed"
                         IsSettingsVisible="False"
                         IsTitleBarAutoPaddingEnabled="False"
                         OpenPaneLength="200"
+                        CompactModeThresholdWidth="560"
+                        ExpandedModeThresholdWidth="1008"
+                        DisplayModeChanged="NavView_DisplayModeChanged"
                         SelectionChanged="NavView_SelectionChanged">
 
             <NavigationView.MenuItems>

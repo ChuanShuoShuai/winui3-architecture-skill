@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed / 修复
+
+- **窄窗口下导航栏不收缩**：模板原先钉死 `PaneDisplayMode="Left"`，窗口缩到 600 DIP 以下时
+  200 px 导航栏挤得内容竖排。改回 `Auto` 三档自适应（`Compact=560` / `Expanded=1008`），
+  并用 `DisplayModeChanged` 在 LeftMinimal 档给 `ContentFrame` 加 48 px 顶部留白，
+  解决该档汉堡按钮压住页面标题的问题——自适应与不重叠兼得。
+  （替代方案与取舍已写入 `references/02`。）
+
 ### Added / 新增
 
 - **`references/10-common-controls.md`（中英两版）**：新增常用控件参考——

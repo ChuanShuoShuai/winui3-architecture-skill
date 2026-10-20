@@ -15,11 +15,14 @@
     <Grid x:Name="TitleBarArea" Grid.Row="0" Height="32" Background="Transparent" />
 
     <NavigationView x:Name="NavView" Grid.Row="1"
-                    PaneDisplayMode="Left"
+                    PaneDisplayMode="Auto"
                     IsSettingsVisible="False"
                     IsBackButtonVisible="Collapsed"
                     IsTitleBarAutoPaddingEnabled="False"
                     OpenPaneLength="200"
+                    CompactModeThresholdWidth="560"
+                    ExpandedModeThresholdWidth="1008"
+                    DisplayModeChanged="NavView_DisplayModeChanged"
                     SelectionChanged="NavView_SelectionChanged">
         <NavigationView.MenuItems>
             <NavigationViewItem Icon="Home" Content="监控" Tag="monitor" />
@@ -47,32 +50,47 @@
 | `IsBackButtonVisible` | `Collapsed` | 桌面应用靠选择导航，不靠历史栈，返回按钮是噪音 |
 | `IsTitleBarAutoPaddingEnabled` | `False` | 自绘标题栏时必须关掉，否则导航栏整体下移 32 px |
 | `OpenPaneLength` | `200` | 默认 320 px 会在 1000 px 宽的窗口里吃掉三分之一 |
-| `PaneDisplayMode` | `Left` | 任何宽度下导航栏都并排在内容左侧，见下 |
+| `PaneDisplayMode` | `Auto` | 按宽度在三种标准模式间切换，见下 |
+| `CompactModeThresholdWidth` | `560` | 低于此宽度导航栏悬浮（LeftMinimal） |
+| `ExpandedModeThresholdWidth` | `1008` | 高于此宽度保持展开；两者之间是 48 px 图标栏 |
 
-## 为什么用 `Left` 而不是 `Auto`
+## 三档导航模式，以及 LeftMinimal 的覆盖陷阱
 
-`Auto` 听起来是"自适应"，但有一个失败模式，看起来像布局 bug：
-
-| 窗口宽度 | 实际模式 | 行为 |
+| 窗口宽度 | 模式 | 行为 |
 |---|---|---|
 | ≥ `ExpandedModeThresholdWidth` | Left | 导航栏并排，内容在右侧 |
-| 两个阈值之间 | LeftCompact | 图标栏，内容在右侧 |
+| 两阈值之间 | LeftCompact | 48 px 图标栏，内容在右侧 |
 | < `CompactModeThresholdWidth` | **LeftMinimal** | **导航栏浮在内容之上** |
 
-LeftMinimal 模式下，内容一直延伸到导航栏底下。汉堡按钮正好压在页面左上角，
-于是**每个页面的第一个标题都会被压住**；展开导航栏时，半透明面板整块盖在页面上。
-实测：窗口 800 DIP + `CompactModeThresholdWidth="1000"`，页面标题和导航栏直接叠在一起。
+LeftMinimal 下内容一直延伸到导航栏底下，汉堡按钮正好落在内容左上角——不加处理就会
+压住每个页面的第一个标题；展开导航栏时，半透明面板还会整块盖在内容上。
 
-三条出路：
+标准修法：**只在 Minimal 档**给内容宿主加顶部留白，由 `DisplayModeChanged` 驱动：
 
-1. **`PaneDisplayMode="Left"`（桌面应用推荐）** —— 导航栏常驻并排，内容永远不被覆盖。
-   最简单，和「设置」「记事本」「计算器」的做法一致。
-2. 保留 `Auto`，但每个页面自己补约 48 px 的左上留白，给汉堡按钮腾位置。
-3. 保留 `Auto`，把 `CompactModeThresholdWidth` 设到比你的最小窗口宽度还小，
-   这样永远不会进入 LeftMinimal。
+```csharp
+private void NavView_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
+{
+    UpdateContentInset(args.DisplayMode);
+}
 
-模板 `assets/template/MainWindow.xaml` 默认用方案 1。如果你改成 `Auto`，
-务必在你支持的最窄窗口尺寸下验证一遍。
+private void UpdateContentInset(NavigationViewDisplayMode mode)
+{
+    ContentFrame.Margin = mode == NavigationViewDisplayMode.Minimal
+        ? new Thickness(0, 48, 0, 0)   // 避开悬浮的汉堡按钮
+        : new Thickness(0);
+}
+```
+
+构造函数里还要手动调一次 `UpdateContentInset(NavView.DisplayMode)`——初始模式不触发该事件。
+`assets/template/` 交付的就是这套。
+
+不想要悬浮导航栏时的替代方案：
+
+1. **`PaneDisplayMode="Left"`** —— 任何宽度都并排；最简单，但窗口窄到 600 DIP 以下时
+   200 px 导航栏挤占内容，是另一个体验问题。
+2. `Auto` 并把 `CompactModeThresholdWidth` 设到比最小窗口宽度还小 —— LeftMinimal 永远不会出现。
+
+无论选哪个，都要在你支持的最窄窗口尺寸下验证一遍。
 
 ## 导航处理
 
