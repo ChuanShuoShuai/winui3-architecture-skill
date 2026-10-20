@@ -19,7 +19,12 @@
                             <SolidColorBrush x:Key="StatusWarningBrush" Color="#9D5D00" />
                             <SolidColorBrush x:Key="StatusCriticalBrush" Color="#C42B1C" />
 
-                            <!-- Make the navigation pane transparent so the backdrop shows through. -->
+                            <!-- Docked panes (icons / docked-open) stay transparent so the
+                                 Mica backdrop shows through. The floating pane in
+                                 LeftMinimal is handled in code: MainWindow reaches into
+                                 the template's RootSplitView and swaps
+                                 SplitView.PaneBackground to an acrylic while the pane
+                                 overlays the page (see UpdatePaneBackdrop). -->
                             <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
                             <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent" />
                         </ResourceDictionary>

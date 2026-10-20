@@ -8,15 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [1.0.1] — 2026-10-20
 
-### Fixed / 修复
-
-- **窄窗口下导航栏不收缩**：模板原先钉死 `PaneDisplayMode="Left"`，窗口缩到 600 DIP 以下时
-  200 px 导航栏挤得内容竖排。改回 `Auto` 三档自适应（`Compact=560` / `Expanded=1008`），
-  并用 `DisplayModeChanged` 在 LeftMinimal 档给 `ContentFrame` 加 48 px 顶部留白，
-  解决该档汉堡按钮压住页面标题的问题——自适应与不重叠兼得。
-  （替代方案与取舍已写入 `references/02`。）
+Two real-world layout fixes driven by running the demo app, plus a new controls reference.
+通过实际运行示例应用发现的两个布局修复，外加一篇新的控件参考。
 
 ### Added / 新增
 
@@ -26,18 +21,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   轮询列表"对账而非整体替换"、`ComboBox` / `ToggleSwitch` 初始化期事件触发陷阱与 `_loading` 守卫、
   `TextChanging` 与中文输入法组合期行为、`ProgressRing` 绑 `IsActive` 而非 `Visibility`、
   `Flyout` / `MenuFlyout` / `DropDownButton`、以及发版前的控件自检单。
-- **示例应用新增「组件博览」页**：上述全部控件的可交互演示——
-  ContentDialog（含双开守卫与返回值展示）、TeachingTip 锚定、Windows 通知实发、
-  ComboBox / RadioButtons / ToggleSwitch / 三态 CheckBox、TextBox `TextChanging` 即时校验、
-  NumberBox、PasswordBox、扫描模拟（ProgressBar + ProgressRing + InfoBar 严重级别联动）、
-  MenuFlyout / DropDownButton、30 行 ListView。
+- **示例应用新增「组件博览」页**：上述全部控件的可交互演示
+  （ContentDialog 双开守卫、TeachingTip 锚定、Windows 通知实发、扫描模拟联动 InfoBar 严重级别、30 行 ListView）。
+- **skills CLI 一键安装**：README 增加安装命令，
+  `npx skills add ChuanShuoShuai/winui3-architecture-skill` 实测可直接发现两个 skill。
+
+### Fixed / 修复
+
+- **窄窗口下导航栏不收缩**：v1.0.0 模板钉死 `PaneDisplayMode="Left"`（为修覆盖问题），
+  窗口缩到 600 DIP 以下时 200 px 导航栏挤得内容竖排。
+  改回 `Auto` 三档自适应（`Compact=560` / `Expanded=1008`）。
+- **LeftMinimal 档汉堡按钮压住页面标题**：改用 `DisplayModeChanged` 在该档给
+  `ContentFrame` 加 48 px 顶部留白，其余档为 0。
+- **悬浮面板无模糊、页面锐利穿透**：`NavigationViewExpandedPaneBackground` 设为
+  `Transparent` 虽让 docked 态透出 Mica，但同一画刷作用于悬浮面板时页面直接看穿。
+  改为直控模板内 `RootSplitView.PaneBackground`：仅"overlay 且展开"时切
+  `AcrylicBrush`（`TintOpacity=0.6`，按主题取 tint 色），其余一律透明。
+  挂钩五处：`Loaded` / `PaneOpening` / `PaneOpened` / `PaneClosed` / `SizeChanged`。
 - **`07-tray-and-toast` 补充**：`Microsoft.Toolkit.Uwp.Notifications` 7.1.3 的传递依赖
   `System.Drawing.Common` 4.7.0 存在已知严重漏洞（GHSA-rxg9-xrhp-64gj / `NU1904`），
   应显式引用新版顶替。
 
 ### Verified / 验证
 
-- 示例应用加入组件页后编译 **0 警告 / 0 错误**（含 Toast 包与漏洞修复后）。
+- 模板原样拷入空目录编译 **0 警告 / 0 错误**。
+- 示例应用三种窗口宽度实测：宽（Left 并排）、窄 700×900 物理像素（LeftMinimal 悬浮 +
+  48 px 留白 + 展开面板亚克力模糊），页面标题与 InfoBar 全程完整可读。
 
 ---
 
@@ -105,4 +114,5 @@ Not just "it looks fine" — the template was assembled, compiled and launched:
 
 ---
 
+[1.0.1]: https://github.com/ChuanShuoShuai/winui3-architecture-skill/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ChuanShuoShuai/winui3-architecture-skill/releases/tag/v1.0.0

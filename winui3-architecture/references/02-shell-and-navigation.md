@@ -97,6 +97,78 @@ Alternatives, when you do not want the floating pane at all:
 
 Whichever you choose, verify at the narrowest window size you support.
 
+## The floating pane needs acrylic, not transparency
+
+With a Mica backdrop you are tempted to keep the pane background `Transparent` so the
+backdrop shows through while docked. That same key paints the pane in LeftMinimal when
+it expands **over the page** — a transparent overlay lets the page show through sharply,
+which reads as a rendering bug.
+
+Theme-resource overrides are the wrong lever here: which key the floating pane uses has
+shifted across WinUI versions, and a single static brush cannot be "transparent while
+docked, acrylic while overlaying". The reliable switch is the `SplitView` inside
+NavigationView's own template — reached by name and driven directly:
+
+```csharp
+private readonly SolidColorBrush _paneInlineBrush = new(Microsoft.UI.Colors.Transparent);
+private SplitView? _paneSplitView;
+private AcrylicBrush? _paneOverlayAcrylic;
+
+private void UpdatePaneBackdrop()
+{
+    _paneSplitView ??= FindChildByName(NavView, "RootSplitView") as SplitView;
+    if (_paneSplitView is not SplitView sv) return;
+
+    bool overlay = sv.DisplayMode is SplitViewDisplayMode.Overlay or SplitViewDisplayMode.CompactOverlay;
+    sv.PaneBackground = overlay && sv.IsPaneOpen ? PaneOverlayAcrylic() : _paneInlineBrush;
+}
+
+private AcrylicBrush PaneOverlayAcrylic()
+{
+    bool dark = RootGrid.ActualTheme == ElementTheme.Dark;
+    var tint = dark
+        ? Windows.UI.Color.FromArgb(0xFF, 0x20, 0x20, 0x20)
+        : Windows.UI.Color.FromArgb(0xFF, 0xF9, 0xF9, 0xF9);
+
+    _paneOverlayAcrylic ??= new AcrylicBrush { TintOpacity = 0.6 };
+    _paneOverlayAcrylic.TintColor = tint;
+    _paneOverlayAcrylic.FallbackColor = tint;
+    return _paneOverlayAcrylic;
+}
+
+private static FrameworkElement? FindChildByName(DependencyObject root, string name)
+{
+    int n = VisualTreeHelper.GetChildrenCount(root);
+    for (int i = 0; i < n; i++)
+    {
+        var child = VisualTreeHelper.GetChild(root, i);
+        if (child is FrameworkElement fe && fe.Name == name) return fe;
+        var found = FindChildByName(child, name);
+        if (found != null) return found;
+    }
+    return null;
+}
+```
+
+Every state change that can move the pane between docked and overlay must re-run it —
+five hooks, because no single event covers all transitions:
+
+```csharp
+NavView.Loaded     += (_, _) => UpdatePaneBackdrop();   // template (and RootSplitView) exists
+NavView.PaneOpening += (_, _) => UpdatePaneBackdrop();
+NavView.PaneOpened += (_, _) => UpdatePaneBackdrop();
+NavView.PaneClosed += (_, _) => UpdatePaneBackdrop();
+SizeChanged        += (_, _) => UpdatePaneBackdrop();   // width crosses a threshold
+```
+
+Also call it once after applying a theme — the acrylic tint colour follows the theme, and
+the event does not fire for the initial mode on its own.
+
+`AcrylicBrush` with `BackgroundSource` default blurs **in-app content beneath the brush**,
+which is exactly what an overlay pane needs. `TintOpacity = 0.6` keeps the page faintly
+visible, matching the system Settings look. `FallbackColor` must equal `TintColor`, so a
+fallback frame degrades to a solid pane instead of a flash of transparency.
+
 ## Navigation handler
 
 Drive everything from one handler keyed on `Tag`:

@@ -92,6 +92,74 @@ private void UpdateContentInset(NavigationViewDisplayMode mode)
 
 无论选哪个，都要在你支持的最窄窗口尺寸下验证一遍。
 
+## 悬浮面板需要亚克力，而不是透明
+
+有 Mica 背景时，很容易想让面板背景保持 `Transparent` 好让 docked 状态透出壁纸色调。
+但同一个键也作用于 LeftMinimal 档**展开盖在页面上**的面板——透明的悬浮层会让页面
+锐利地透出来，看起来就像渲染 bug。
+
+主题资源覆盖在这里是错误的杠杆：悬浮面板用哪个键在不同 WinUI 版本间变过，而且
+"任何单一静态画刷"都无法做到"docked 时透明、overlay 时亚克力"。可靠的开关是
+NavigationView 模板内部的 `SplitView`——按名字找到它，直接驱动：
+
+```csharp
+private readonly SolidColorBrush _paneInlineBrush = new(Microsoft.UI.Colors.Transparent);
+private SplitView? _paneSplitView;
+private AcrylicBrush? _paneOverlayAcrylic;
+
+private void UpdatePaneBackdrop()
+{
+    _paneSplitView ??= FindChildByName(NavView, "RootSplitView") as SplitView;
+    if (_paneSplitView is not SplitView sv) return;
+
+    bool overlay = sv.DisplayMode is SplitViewDisplayMode.Overlay or SplitViewDisplayMode.CompactOverlay;
+    sv.PaneBackground = overlay && sv.IsPaneOpen ? PaneOverlayAcrylic() : _paneInlineBrush;
+}
+
+private AcrylicBrush PaneOverlayAcrylic()
+{
+    bool dark = RootGrid.ActualTheme == ElementTheme.Dark;
+    var tint = dark
+        ? Windows.UI.Color.FromArgb(0xFF, 0x20, 0x20, 0x20)
+        : Windows.UI.Color.FromArgb(0xFF, 0xF9, 0xF9, 0xF9);
+
+    _paneOverlayAcrylic ??= new AcrylicBrush { TintOpacity = 0.6 };
+    _paneOverlayAcrylic.TintColor = tint;
+    _paneOverlayAcrylic.FallbackColor = tint;
+    return _paneOverlayAcrylic;
+}
+
+private static FrameworkElement? FindChildByName(DependencyObject root, string name)
+{
+    int n = VisualTreeHelper.GetChildrenCount(root);
+    for (int i = 0; i < n; i++)
+    {
+        var child = VisualTreeHelper.GetChild(root, i);
+        if (child is FrameworkElement fe && fe.Name == name) return fe;
+        var found = FindChildByName(child, name);
+        if (found != null) return found;
+    }
+    return null;
+}
+```
+
+凡是能把面板在 docked / overlay 之间移动的状态变化都必须重跑一遍——五个挂钩，
+因为没有任何单一事件覆盖全部转换：
+
+```csharp
+NavView.Loaded      += (_, _) => UpdatePaneBackdrop();   // 模板（和 RootSplitView）此时才存在
+NavView.PaneOpening += (_, _) => UpdatePaneBackdrop();
+NavView.PaneOpened  += (_, _) => UpdatePaneBackdrop();
+NavView.PaneClosed  += (_, _) => UpdatePaneBackdrop();
+SizeChanged         += (_, _) => UpdatePaneBackdrop();   // 窗口宽度跨过阈值
+```
+
+应用主题之后也要再调一次——亚克力 tint 颜色跟随主题，而初始模式不会自己触发事件。
+
+`AcrylicBrush`（`BackgroundSource` 默认值）模糊的是**画刷下方的应用内内容**，正是悬浮
+面板需要的。`TintOpacity = 0.6` 让页面隐约可见，与系统「设置」一致。`FallbackColor`
+必须等于 `TintColor`，这样降级帧是实色面板而不是闪一下透明。
+
 ## 导航处理
 
 所有导航收敛到一个按 `Tag` 分发的处理函数：
