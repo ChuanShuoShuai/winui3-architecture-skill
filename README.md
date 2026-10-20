@@ -26,6 +26,21 @@ non-obvious runtime pitfalls that produce no compiler error.
 
 ## 安装 / Install
 
+**One command / 一条命令**（skills CLI，支持 Claude Code / Codex / Cursor / Windsurf 等数十种 Agent）：
+
+```bash
+npx skills add ChuanShuoShuai/winui3-architecture-skill
+```
+
+只要其中一个版本 / Just one edition:
+
+```bash
+npx skills add ChuanShuoShuai/winui3-architecture-skill --skill winui3-architecture     # English
+npx skills add ChuanShuoShuai/winui3-architecture-skill --skill winui3-architecture-zh  # 简体中文
+```
+
+**Manual copy / 手动复制**：
+
 ```bash
 # 用户级：所有项目可用
 cp -r winui3-architecture ~/.workbuddy/skills/
