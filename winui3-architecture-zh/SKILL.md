@@ -160,6 +160,7 @@ Mica    → 亚克力   当 MicaController.IsSupported() 为 false
 | `references/07-tray-and-toast.md` | 托盘图标、通知激活、单实例参数转发 |
 | `references/08-custom-controls.md` | 转换器约定、卡片模板、代码构建 UI、图标+文字按钮 |
 | `references/09-window-targeting.md` | 顶层窗口命中测试、截屏、遮罩取景器 |
+| `references/10-common-controls.md` | InfoBar/ContentDialog/TeachingTip 怎么选、ListView 虚拟化、ComboBox/ToggleSwitch 初始化事件陷阱 |
 
 ## 模板
 

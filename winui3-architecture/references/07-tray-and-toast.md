@@ -80,6 +80,11 @@ Without the flag, the tray Exit item hides the window again and the process neve
 Package: `Microsoft.Toolkit.Uwp.Notifications` (7.x). It registers the COM activator
 automatically on first use in an unpackaged app.
 
+> **Transitive vulnerability**: 7.1.3 pulls `System.Drawing.Common` 4.7.0, which has a
+> known critical advisory (GHSA-rxg9-xrhp-64gj). NuGet reports `NU1904`. Add an explicit
+> reference to the latest `System.Drawing.Common` in your own csproj to lift the
+> transitive version — do not downgrade the notifications package for this.
+
 ### Show
 
 ```csharp

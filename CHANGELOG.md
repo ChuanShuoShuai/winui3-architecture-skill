@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added / 新增
+
+- **`references/10-common-controls.md`（中英两版）**：新增常用控件参考——
+  消息表面四选一对照表（`ContentDialog` / `InfoBar` / `TeachingTip` / `ToolTip`）、
+  `ListView` 虚拟化两条硬规矩（禁嵌套 `ScrollViewer`、禁换 `StackPanel`）、
+  轮询列表"对账而非整体替换"、`ComboBox` / `ToggleSwitch` 初始化期事件触发陷阱与 `_loading` 守卫、
+  `TextChanging` 与中文输入法组合期行为、`ProgressRing` 绑 `IsActive` 而非 `Visibility`、
+  `Flyout` / `MenuFlyout` / `DropDownButton`、以及发版前的控件自检单。
+- **示例应用新增「组件博览」页**：上述全部控件的可交互演示——
+  ContentDialog（含双开守卫与返回值展示）、TeachingTip 锚定、Windows 通知实发、
+  ComboBox / RadioButtons / ToggleSwitch / 三态 CheckBox、TextBox `TextChanging` 即时校验、
+  NumberBox、PasswordBox、扫描模拟（ProgressBar + ProgressRing + InfoBar 严重级别联动）、
+  MenuFlyout / DropDownButton、30 行 ListView。
+- **`07-tray-and-toast` 补充**：`Microsoft.Toolkit.Uwp.Notifications` 7.1.3 的传递依赖
+  `System.Drawing.Common` 4.7.0 存在已知严重漏洞（GHSA-rxg9-xrhp-64gj / `NU1904`），
+  应显式引用新版顶替。
+
+### Verified / 验证
+
+- 示例应用加入组件页后编译 **0 警告 / 0 错误**（含 Toast 包与漏洞修复后）。
+
+---
+
 ## [1.0.0] — 2026-10-19
 
 First public release. Two Agent Skills (English and Simplified Chinese) that teach a

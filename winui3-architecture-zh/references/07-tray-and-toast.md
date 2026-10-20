@@ -80,6 +80,10 @@ AppWindow.Closing += (s, e) =>
 包：`Microsoft.Toolkit.Uwp.Notifications`（7.x）。在非打包应用里，它会在首次使用时
 自动注册 COM 激活器。
 
+> **传递依赖漏洞**：7.1.3 会带入 `System.Drawing.Common` 4.7.0，该版本有已知严重漏洞
+> （GHSA-rxg9-xrhp-64gj），NuGet 报 `NU1904`。在自己的 csproj 里显式引用最新版
+> `System.Drawing.Common` 把传递版本顶上去——不要因此降级通知包。
+
 ### 弹出
 
 ```csharp

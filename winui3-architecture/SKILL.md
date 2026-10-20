@@ -166,6 +166,7 @@ Load only what the task needs.
 | `references/07-tray-and-toast.md` | Tray icon, notification activation, single-instance argument forwarding |
 | `references/08-custom-controls.md` | Converter conventions, card templates, code-built UI, icon+text buttons |
 | `references/09-window-targeting.md` | Hit-testing top-level windows, screen capture, overlay picker |
+| `references/10-common-controls.md` | Choosing InfoBar vs ContentDialog vs TeachingTip, ListView virtualization, ComboBox/ToggleSwitch init-time event traps |
 
 ## Templates
 
